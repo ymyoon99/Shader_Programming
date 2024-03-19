@@ -18,7 +18,7 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	m_WindowSizeY = windowSizeY;
 
 	//Load shaders
-	m_SolidRectShader = CompileShaders("./Shaders/SolidRect.vs", "./Shaders/SolidRect.fs");
+	m_SolidRectShader = CompileShaders("./Shaders/SolidRect.vs", "./Shaders/SolidRect.fs"); // 쉐이더를 컴파일
 	
 	//Create VBOs
 	CreateVertexBufferObjects();
@@ -47,7 +47,15 @@ void Renderer::CreateVertexBufferObjects()
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBORect);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(rect), rect, GL_STATIC_DRAW);
 
-	float vertices[] = { 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f }; // CPU 메모리에 있는 내용을 GPU 메모리에 올려야함.
+	float vertices[] = { // Vertex Buffer Object 생성
+		0.0f, 0.0f, 0.0f, 
+		1.0f, 0.0f, 0.0f, 
+		1.0f, 1.0f, 0.0f 
+	}; // CPU 메모리에 있는 내용을 GPU 메모리에 올려야함.
+
+	glGenBuffers(1, &m_TestVBO); // id 생성, DATA 올라가는 과정 X
+	glBindBuffer(GL_ARRAY_BUFFER, m_TestVBO); // 데이터를 작업대(GL_ARRAY_BUFFER) 위에 올림
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // ARRAY 정보가 GPU에 업로드
 }
 
 void Renderer::AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType)
@@ -188,4 +196,19 @@ void Renderer::GetGLPosition(float x, float y, float *newX, float *newY)
 {
 	*newX = x * 2.f / m_WindowSizeX;
 	*newY = y * 2.f / m_WindowSizeY;
+}
+
+void Renderer::DrawTest()
+{
+	//Program select
+	glUseProgram(m_SolidRectShader);
+
+	int attribPosition = glGetAttribLocation(m_SolidRectShader, "a_Position");
+	glEnableVertexAttribArray(attribPosition);
+	glBindBuffer(GL_ARRAY_BUFFER, m_TestVBO); // VBO를 바인딩
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0); // 인자를 알아야 함.
+
+	glDrawArrays(GL_TRIANGLES, 0, 3); // Draw Call -> Async, 호출 즉시 GPU가 동작
+
+	glDisableVertexAttribArray(attribPosition);
 }
