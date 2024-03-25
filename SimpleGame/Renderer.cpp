@@ -19,6 +19,7 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 
 	//Load shaders
 	m_SolidRectShader = CompileShaders("./Shaders/SolidRect.vs", "./Shaders/SolidRect.fs"); // 쉐이더를 컴파일
+	m_ParticleShader = CompileShaders("./Shaders/Particle.vs", "./Shaders/Particle.fs");
 	
 	//Create VBOs
 	CreateVertexBufferObjects();
@@ -56,6 +57,22 @@ void Renderer::CreateVertexBufferObjects()
 	glGenBuffers(1, &m_TestVBO); // id 생성, DATA 올라가는 과정 X
 	glBindBuffer(GL_ARRAY_BUFFER, m_TestVBO); // 데이터를 작업대(GL_ARRAY_BUFFER) 위에 올림
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // ARRAY 정보가 GPU에 업로드
+
+	float size = 0.05;
+	float particleVertes[] = {
+		-size, -size, 0,
+		size, size, 0,
+		- size, size, 0, //왼쪽 위 삼각형
+		-size, -size, 0,
+		size, -size, 0,
+		size, size, 0
+	};
+
+	// float* a = new float[100];
+	glGenBuffers(1, &m_ParticleVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_ParticleVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(particleVertes), particleVertes, GL_STATIC_DRAW);
+
 }
 
 void Renderer::AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType)
@@ -209,6 +226,28 @@ void Renderer::DrawTest()
 	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0); // 인자를 알아야 함.
 
 	glDrawArrays(GL_TRIANGLES, 0, 3); // Draw Call -> Async, 호출 즉시 GPU가 동작
+
+	glDisableVertexAttribArray(attribPosition);
+}
+
+void Renderer::DrawParticle()
+{
+	//Program select
+	GLuint shader = m_ParticleShader;
+	glUseProgram(shader);
+
+	int ulTime = glGetUniformLocation(shader, "u_Time");
+	glUniform1f(ulTime, m_ParticleTime);
+	m_ParticleTime += 0.1;
+	if (m_ParticleTime > 200.f) m_ParticleTime = 0;
+
+
+	int attribPosition = glGetAttribLocation(shader, "a_Position");
+	glEnableVertexAttribArray(attribPosition);
+	glBindBuffer(GL_ARRAY_BUFFER, m_ParticleVBO); // VBO를 바인딩
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0); // 인자를 알아야 함.
+
+	glDrawArrays(GL_TRIANGLES, 0, 6); // 0번째 vertex부터 6개의 버텍스를 그려라
 
 	glDisableVertexAttribArray(attribPosition);
 }

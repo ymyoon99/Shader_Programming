@@ -1,6 +1,6 @@
 #version 330
 
-in vec3 a_Position;
+in vec3 a_Position; // ÇÏ³ªÀÇ attribute
 
 void main()
 {
