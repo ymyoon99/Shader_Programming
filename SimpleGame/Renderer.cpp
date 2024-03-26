@@ -24,6 +24,9 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	//Create VBOs
 	CreateVertexBufferObjects();
 
+	//Create Particle Cloud
+	CreateParticleCloud(1000); // 초기화 단계에서 한번 호출
+
 	if (m_SolidRectShader > 0 && m_VBORect > 0)
 	{
 		m_Initialized = true;
@@ -215,6 +218,57 @@ void Renderer::GetGLPosition(float x, float y, float *newX, float *newY)
 	*newY = y * 2.f / m_WindowSizeY;
 }
 
+void Renderer::CreateParticleCloud(int numParticles)
+{
+	float centerX, centerY;
+	centerX = 0.f;
+	centerY = 0.f;
+	float size = 0.01f;
+	int particleCount = numParticles;
+	int vertexCount = particleCount * 6;
+	int floatCount = vertexCount * 3;
+
+	float *vertices = NULL;
+	vertices = new float[floatCount];
+
+	int index = 0;
+	for (int i = 0; i < particleCount; i++)
+	{
+		centerX = ((float)rand() / (float)RAND_MAX) * 2.f - 1.f;
+		centerY = ((float)rand() / (float)RAND_MAX) * 2.f - 1.f;
+
+		vertices[index] = centerX - size; index++;
+		vertices[index] = centerY - size; index++;
+		vertices[index] = 0.f; index++;
+		vertices[index] = centerX + size; index++;
+		vertices[index] = centerY + size; index++;
+		vertices[index] = 0.f; index++;
+		vertices[index] = centerX - size; index++;
+		vertices[index] = centerY + size; index++;
+		vertices[index] = 0.f; index++; // triangle1
+
+		vertices[index] = centerX - size; index++;
+		vertices[index] = centerY - size; index++;
+		vertices[index] = 0.f; index++;
+		vertices[index] = centerX + size; index++;
+		vertices[index] = centerY - size; index++;
+		vertices[index] = 0.f; index++;
+		vertices[index] = centerX + size; index++;
+		vertices[index] = centerY + size; index++;
+		vertices[index] = 0.f; index++; // triangle2
+
+	}
+
+	glGenBuffers(1, &m_ParticleCloudVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_ParticleCloudVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * floatCount, vertices, GL_STATIC_DRAW);
+	m_ParticleCloudVertexCount = vertexCount;
+
+	delete[] vertices;
+
+
+}
+
 void Renderer::DrawTest()
 {
 	//Program select
@@ -238,9 +292,11 @@ void Renderer::DrawParticle()
 
 	int ulTime = glGetUniformLocation(shader, "u_Time");
 	glUniform1f(ulTime, m_ParticleTime);
-	m_ParticleTime += 0.1;
-	if (m_ParticleTime > 200.f) m_ParticleTime = 0;
+	m_ParticleTime += 0.016; // openGL에 걸어놓은 60FPS 기준 
+	// 증가만 하는게 정상이다. vs 안에서 처리를 하는게 좋다
 
+	int ulPeriod = glGetUniformLocation(shader, "u_Period");
+	glUniform1f(ulPeriod, 2.0);
 
 	int attribPosition = glGetAttribLocation(shader, "a_Position");
 	glEnableVertexAttribArray(attribPosition);
@@ -248,6 +304,30 @@ void Renderer::DrawParticle()
 	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0); // 인자를 알아야 함.
 
 	glDrawArrays(GL_TRIANGLES, 0, 6); // 0번째 vertex부터 6개의 버텍스를 그려라
+
+	glDisableVertexAttribArray(attribPosition);
+}
+
+void Renderer::DrawParticleCloud()
+{
+	//Program select
+	GLuint shader = m_ParticleShader;
+	glUseProgram(shader);
+
+	int ulTime = glGetUniformLocation(shader, "u_Time");
+	glUniform1f(ulTime, m_ParticleTime);
+	m_ParticleTime += 0.016; // openGL에 걸어놓은 60FPS 기준 
+	// 증가만 하는게 정상이다. vs 안에서 처리를 하는게 좋다
+
+	int ulPeriod = glGetUniformLocation(shader, "u_Period");
+	glUniform1f(ulPeriod, 2.0);
+
+	int attribPosition = glGetAttribLocation(shader, "a_Position");
+	glEnableVertexAttribArray(attribPosition);
+	glBindBuffer(GL_ARRAY_BUFFER, m_ParticleCloudVBO); // VBO를 바인딩
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0); // 인자를 알아야 함.
+
+	glDrawArrays(GL_TRIANGLES, 0, m_ParticleCloudVertexCount); // 0번째 vertex부터 6개의 버텍스를 그려라
 
 	glDisableVertexAttribArray(attribPosition);
 }
