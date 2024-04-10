@@ -6,6 +6,7 @@ in float a_StartTime;
 in float a_LifeTime;
 in float a_Amp;
 in float a_Period;
+in float a_Value;
 
 uniform float u_Time = 0; // 초기화 가능
 uniform	float u_Period = 2.0;
@@ -13,7 +14,7 @@ uniform	float u_Period = 2.0;
 const vec3 c_StartPos = vec3(-1, 0, 0);
 const vec3 c_Velocity = vec3(2.0, 0, 0);
 const vec3 c_ParaVelocity = vec3(2.0, 2.0, 0);
-const vec2 c_2DGravity = vec2(0.0, -4.9);
+const vec2 c_2DGravity = vec2(0.0, -0.9);
 const float c_PI = 3.141592;
 
 void Basic()
@@ -89,10 +90,17 @@ void SinShape()
 	if(t > 0)
 	{
 		t = a_LifeTime*fract(t/a_LifeTime);
-		vec2 newDir = vec2(-a_Velocity.y, a_Velocity.x);
+		float tt = t*t;
+		float value = a_Value * 2.0 * c_PI;
+		float x = cos(value);
+		float y = sin(value);
+		newPosition.xy = newPosition.xy + vec2(x, y);
+
+		vec2 newVel = a_Velocity.xy + c_2DGravity * t; // 새로운 가속도는 원래 속도xy + 중력 * 시간 t
+		vec2 newDir = vec2(-newVel.y, newVel.x);
 		newDir = normalize(newDir);
-		newPosition.xy = newPosition.xy + a_Velocity.xy * t;
-		newPosition.xy = newPosition.xy + newDir * (t * 0.2) * amp * sin(t * c_PI * period);
+		newPosition.xy = newPosition.xy + a_Velocity.xy * t + 0.5 * c_2DGravity * tt; // 1/2 * 중력 가속도 * 시간 t^2
+		newPosition.xy = newPosition.xy + newDir * (t * 0.1) * amp * sin(t * c_PI * period);
 		
 	}
 	else
