@@ -4,6 +4,8 @@ in vec3 a_Position; // attrbute로 받은 초기위치
 in vec3 a_Velocity; // attrbute로 받은 속도
 in float a_StartTime;
 in float a_LifeTime;
+in float a_Amp;
+in float a_Period;
 
 uniform float u_Time = 0; // 초기화 가능
 uniform	float u_Period = 2.0;
@@ -76,12 +78,37 @@ void Parabola()
 	gl_Position = newPosition;
 }
 
+void SinShape()
+{
+	vec4 newPosition = vec4(a_Position, 1);
+	float t = u_Time - a_StartTime;
+
+	float amp = a_Amp; // 폭
+	float period = a_Period; // 주기
+
+	if(t > 0)
+	{
+		t = a_LifeTime*fract(t/a_LifeTime);
+		vec2 newDir = vec2(-a_Velocity.y, a_Velocity.x);
+		newDir = normalize(newDir);
+		newPosition.xy = newPosition.xy + a_Velocity.xy * t;
+		newPosition.xy = newPosition.xy + newDir * (t * 0.2) * amp * sin(t * c_PI * period);
+		
+	}
+	else
+	{
+		newPosition.x = 1000000;
+	}
+	gl_Position = newPosition;
+}
+
 void main()
 {
 	//Line();
 	//Circle();
 	//Parabola();
 	//Basic();
-	Velocity();
+	//Velocity();
+	SinShape();
 }
 
