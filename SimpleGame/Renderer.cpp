@@ -364,7 +364,7 @@ void Renderer::DrawParticleCloud()
 
 	int ulTime = glGetUniformLocation(shader, "u_Time");
 	glUniform1f(ulTime, m_ParticleTime);
-	m_ParticleTime += 0.00016; // openGL에 걸어놓은 60FPS 기준 
+	m_ParticleTime += 0.016; // openGL에 걸어놓은 60FPS 기준 
 	// 증가만 하는게 정상이다. vs 안에서 처리를 하는게 좋다
 
 	int ulPeriod = glGetUniformLocation(shader, "u_Period");

@@ -19,6 +19,20 @@ Renderer *g_Renderer = NULL;
 
 void RenderScene(void)
 {
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glClearColor(0.0f, 0.3f, 0.3f, 1.0f); // 배경색
+
+	//// Renderer Test
+	////g_Renderer->DrawSolidRect(0, 0, 0, 4, 1, 0, 1, 1);
+	////g_Renderer->DrawTest();
+	////g_Renderer->DrawParticle();
+	//g_Renderer->DrawParticleCloud();
+
+	//glutSwapBuffers();
+}
+
+void RenderSceneTimer(int value)
+{
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0f, 0.3f, 0.3f, 1.0f); // 배경색
 
@@ -29,11 +43,12 @@ void RenderScene(void)
 	g_Renderer->DrawParticleCloud();
 
 	glutSwapBuffers();
+	glutTimerFunc(16, RenderSceneTimer, 1); // 16ms 이후에 반복 호출
 }
 
 void Idle(void)
 {
-	RenderScene();
+	//RenderScene();
 }
 
 void MouseInput(int button, int state, int x, int y)
@@ -83,6 +98,7 @@ int main(int argc, char **argv)
 	glutMouseFunc(MouseInput);
 	glutSpecialFunc(SpecialKeyInput);
 
+	glutTimerFunc(16, RenderSceneTimer, 1); // 메인 루프가 시작되기 전에 최초호출
 	glutMainLoop();
 
 	delete g_Renderer;

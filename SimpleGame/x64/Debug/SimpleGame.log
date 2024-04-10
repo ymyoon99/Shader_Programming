@@ -1,4 +1,5 @@
 ﻿  Renderer.cpp
+  SimpleGame.cpp
 C:\Shader_Programming\Shader_Programming\SimpleGame\Renderer.cpp(65,13): warning C4305: '초기화 중': 'double'에서 'float'(으)로 잘립니다.
   (소스 파일 '/Renderer.cpp'을(를) 컴파일하는 중)
   
@@ -8,7 +9,8 @@ C:\Shader_Programming\Shader_Programming\SimpleGame\Renderer.cpp(94,21): warning
 C:\Shader_Programming\Shader_Programming\SimpleGame\Renderer.cpp(343,25): warning C4305: '+=': 'double'에서 'float'(으)로 잘립니다.
   (소스 파일 '/Renderer.cpp'을(를) 컴파일하는 중)
   
-C:\Shader_Programming\Shader_Programming\SimpleGame\Renderer.cpp(367,27): warning C4305: '+=': 'double'에서 'float'(으)로 잘립니다.
+C:\Shader_Programming\Shader_Programming\SimpleGame\Renderer.cpp(367,25): warning C4305: '+=': 'double'에서 'float'(으)로 잘립니다.
   (소스 파일 '/Renderer.cpp'을(를) 컴파일하는 중)
   
+  코드를 생성하고 있습니다...
   SimpleGame.vcxproj -> C:\Shader_Programming\Shader_Programming\x64\Debug\SimpleGame.exe
