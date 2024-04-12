@@ -1,5 +1,4 @@
 ﻿  Renderer.cpp
-  SimpleGame.cpp
 C:\Shader_Programming\Shader_Programming\SimpleGame\Renderer.cpp(113,21): warning C4267: '=': 'size_t'에서 'GLint'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   (소스 파일 '/Renderer.cpp'을(를) 컴파일하는 중)
   
@@ -9,11 +8,9 @@ C:\Shader_Programming\Shader_Programming\SimpleGame\Renderer.cpp(427,25): warnin
 C:\Shader_Programming\Shader_Programming\SimpleGame\Renderer.cpp(455,25): warning C4305: '+=': 'double'에서 'float'(으)로 잘립니다.
   (소스 파일 '/Renderer.cpp'을(를) 컴파일하는 중)
   
-C:\Shader_Programming\Shader_Programming\SimpleGame\Renderer.cpp(538,22): warning C4244: '인수': 'GLuint'에서 'GLfloat'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Shader_Programming\Shader_Programming\SimpleGame\Renderer.cpp(539,26): warning C4305: '+=': 'double'에서 'float'(으)로 잘립니다.
   (소스 파일 '/Renderer.cpp'을(를) 컴파일하는 중)
   
-C:\Shader_Programming\Shader_Programming\SimpleGame\Renderer.cpp(539,21): warning C4244: '+=': 'double'에서 'GLuint'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  (소스 파일 '/Renderer.cpp'을(를) 컴파일하는 중)
-  
+  SimpleGame.cpp
   코드를 생성하고 있습니다...
   SimpleGame.vcxproj -> C:\Shader_Programming\Shader_Programming\x64\Debug\SimpleGame.exe
