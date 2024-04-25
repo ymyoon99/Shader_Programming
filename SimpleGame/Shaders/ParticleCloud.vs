@@ -170,7 +170,7 @@ void HeartShapeCycle()
 		float particleAlpha = 1 - t/a_LifeTime;
 		float tt = t * t;
 		float value = a_StartTime * 2.0 * c_PI;
-		float x = 16 * pow(sin(value), 3);
+		float x = 16 * (sin(value) * sin(value) * sin(value));
 		float y = 13 * cos(value) - 5 * cos(2 * value) - 2 * cos(3 * value) - cos(4 * value);
 		x *= 0.05;
 		y *= 0.05;
