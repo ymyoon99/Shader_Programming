@@ -41,6 +41,9 @@
     <ClCompile Include="Renderer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="LoadPng.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\SolidRect.fs">
@@ -71,6 +74,12 @@
       <Filter>소스 파일\Shaders</Filter>
     </None>
     <None Include="Shaders\GridMesh.vs">
+      <Filter>소스 파일\Shaders</Filter>
+    </None>
+    <None Include="Shaders\TextureSandbox.fs">
+      <Filter>소스 파일\Shaders</Filter>
+    </None>
+    <None Include="Shaders\TextureSandbox.vs">
       <Filter>소스 파일\Shaders</Filter>
     </None>
   </ItemGroup>
