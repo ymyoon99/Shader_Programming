@@ -11,6 +11,11 @@ const vec3 c_ParaVelocity = vec3(2.0, 2.0, 0);
 const vec2 c_2DGravity = vec2(0.0, -4.9);
 const float c_PI = 3.141592;
 
+const vec3 c_TriStartPos = vec3(-1, -1, 0);
+const vec3 c_TriPoint1 = vec3(2, 0, 0);
+const vec3 c_TriPoint2 = vec3(-1, 2, 0);
+const vec3 c_TriPoint3 = vec3(-1, -2, 0);
+
 void Basic()
 {
 	vec4 newPosition = vec4(a_Position, 1);
@@ -56,11 +61,36 @@ void Parabola()
 	gl_Position = newPosition;
 }
 
+void Triangle() {
+   
+	vec3 triangle[3];
+    triangle[0] = vec3(-1.0, -1.0, 0.0); // 시작 위치
+    triangle[1] = vec3(1.0, -1.0, 0.0);  // 첫 번째 꼭지점
+    triangle[2] = vec3(0.0, 1.0, 0.0);   // 두 번째 꼭지점
+
+    // 시간을 삼각형의 주기에 맞게 조정
+    float newTime = fract(u_Time / u_Period) * 3.0; // 삼각형의 각 변을 따라 움직이기 위해 3을 곱함
+	int segment = int(newTime);  // 현재 세그먼트를 정수로 표현
+    float t = fract(newTime);    // 세그먼트 내에서의 로컬 시간
+
+    // 현재 세그먼트와 다음 세그먼트 위치 계산
+    vec3 currentPos = triangle[segment % 3];
+    vec3 nextPos = triangle[(segment + 1) % 3];
+
+    // 선형 보간으로 현재 위치 계산
+    vec3 position = currentPos + (nextPos - currentPos) * t;
+
+    // 위치를 vertex shader에서 처리
+    vec4 newPosition = vec4(position + a_Position, 1.0);
+    gl_Position = newPosition;
+}
+
 void main()
 {
-	Line();
+	//Line();
 	//Circle();
 	//Parabola();
 	//Basic();
+	Triangle();
 }
 

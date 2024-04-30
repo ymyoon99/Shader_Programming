@@ -28,13 +28,26 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 
 	//Create VBOs
 	CreateVertexBufferObjects();
-	m_RGBTexture = CreatePngTexture("./rgb.png", GL_NEAREST);
 
 	//Create Particle Cloud
 	CreateParticleCloud(10000); // 초기화 단계에서 한번 호출
 
 	//Create Grid Mesh
 	CreateGridMesh(32, 32);
+
+	//Create Texture
+	m_RGBTexture = CreatePngTexture("./rgb.png", GL_NEAREST);
+	m_NumberTexture[0] = CreatePngTexture("./Textures/0.png", GL_NEAREST);
+	m_NumberTexture[1] = CreatePngTexture("./Textures/1.png", GL_NEAREST);
+	m_NumberTexture[2] = CreatePngTexture("./Textures/2.png", GL_NEAREST);
+	m_NumberTexture[3] = CreatePngTexture("./Textures/3.png", GL_NEAREST);
+	m_NumberTexture[4] = CreatePngTexture("./Textures/4.png", GL_NEAREST);
+	m_NumberTexture[5] = CreatePngTexture("./Textures/5.png", GL_NEAREST);
+	m_NumberTexture[6] = CreatePngTexture("./Textures/6.png", GL_NEAREST);
+	m_NumberTexture[7] = CreatePngTexture("./Textures/7.png", GL_NEAREST);
+	m_NumberTexture[8] = CreatePngTexture("./Textures/8.png", GL_NEAREST);
+	m_NumberTexture[9] = CreatePngTexture("./Textures/9.png", GL_NEAREST);
+	m_NumbersTexture = CreatePngTexture("./Textures/numbers.png", GL_NEAREST);
 
 	if (m_SolidRectShader > 0 && m_VBORect > 0)
 	{
@@ -720,10 +733,26 @@ void Renderer::DrawTextureSandbox()
 	glUniform1f(ulTime, m_TextureSandboxTime);
 	m_TextureSandboxTime += 0.016;
 
-	GLuint ul_Texture = glGetUniformLocation(shader, "u_Texture");
-	glUniform1i(ul_Texture, 0);
+	// Text Slot
+	int ulSampler = glGetUniformLocation(shader, "u_Texture");
+	glUniform1i(ulSampler, 0);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_RGBTexture);
+
+	int ulSampler1 = glGetUniformLocation(shader, "u_NumberTexture");
+	int textures[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+	glUniform1iv(ulSampler1, 10, textures); // array라 iv
+
+	int ulSampler2 = glGetUniformLocation(shader, "u_NumbersTexture");
+	glUniform1i(ulSampler2, 11);
+
+	for (int i = 0; i < 10; i++) {
+		glActiveTexture(GL_TEXTURE1 + i);
+		glBindTexture(GL_TEXTURE_2D, m_NumberTexture[i]);
+	}
+
+	glActiveTexture(GL_TEXTURE11);
+	glBindTexture(GL_TEXTURE_2D, m_NumbersTexture);
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 

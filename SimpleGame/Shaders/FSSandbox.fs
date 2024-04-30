@@ -49,7 +49,7 @@ void Circles()
 	float circleCount = 10; // local 좌표계의 0 ~ 1 사이에 몇개를 만들어 낼건지
 	vec2 circleCenter = vec2(0.5, 0.5);
 	float dist = distance(v_Color.rg, circleCenter);
-	float inputF = circleCount * c_PI * 4 * dist + u_Time * 2;
+	float inputF = circleCount * c_PI * 4 * dist - u_Time * 2;
 	float sinValue = pow(sin(inputF), 16);
 
 	FragColor = vec4(sinValue);
@@ -76,9 +76,29 @@ void SinGraph()
 	}
 }
 
+void numCircles()
+{
+   vec2 centers[3] = vec2[](vec2(0.3, 0.3), vec2(0.7, 0.5), vec2(0.5, 0.7)); // 원의 중심 위치 설정
+   float circleCount = 10.0;
+    float maxEffect = 0.0;
+   float timeOffsets[3] = float[](0.0, 1.0, 2.0);
+
+    for (int i = 0; i < 3; i++)
+    {
+        float adjustedTime = u_Time + timeOffsets[i];
+        float dist = distance(v_Color.rg, centers[i]);
+        float inputF = circleCount * c_PI * 4.0 * dist - adjustedTime * 2.0;
+        float sinValue = pow(sin(inputF), 16.0);
+        maxEffect = max(maxEffect, sinValue);
+    }
+
+    FragColor = vec4(maxEffect); 
+}
+
 void main()
 {
 	//Circle();
 	//Circles();
-	SinGraph();
+	//SinGraph();
+	numCircles();
 }
