@@ -25,6 +25,7 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	m_FSSandboxShader = CompileShaders("./Shaders/FSSandbox.vs", "./Shaders/FSSandbox.fs");
 	m_GridMeshShader = CompileShaders("./Shaders/GridMesh.vs", "./Shaders/GridMesh.fs");
 	m_TextureSandboxShader = CompileShaders("./Shaders/TextureSandbox.vs", "./Shaders/TextureSandbox.fs");
+	m_TextureShader = CompileShaders("./Shaders/Texture.vs", "./Shaders/Texture.fs");
 
 	//Create VBOs
 	CreateVertexBufferObjects();
@@ -48,6 +49,9 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	m_NumberTexture[8] = CreatePngTexture("./Textures/8.png", GL_NEAREST);
 	m_NumberTexture[9] = CreatePngTexture("./Textures/9.png", GL_NEAREST);
 	m_NumbersTexture = CreatePngTexture("./Textures/numbers.png", GL_NEAREST);
+
+	//Gen GBOs;
+	CreateFBOs();
 
 	if (m_SolidRectShader > 0 && m_VBORect > 0)
 	{
@@ -128,6 +132,19 @@ void Renderer::CreateVertexBufferObjects()
 	glGenBuffers(1, &m_TextureSandboxVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_TextureSandboxVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(TextureSandboxVerts), TextureSandboxVerts, GL_STATIC_DRAW);
+
+	float textureVertes[] = {
+		0, 0, 0,
+		1, 1, 0,
+		0, 1, 0, //왼쪽 위 삼각형
+		0, 0, 0,
+		1, 0, 0,
+		1, 1, 0
+	};
+
+	glGenBuffers(1, &m_TextureVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_TextureVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(textureVertes), textureVertes, GL_STATIC_DRAW);
 }
 
 void Renderer::AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType)
@@ -540,6 +557,38 @@ GLuint Renderer::CreatePngTexture(char* filePath, GLuint samplingMethod)
 	return temp;
 }
 
+void Renderer::CreateFBOs()
+{
+
+	glGenTextures(1, &m_A_FBOTexture);
+	glBindTexture(GL_TEXTURE_2D, m_A_FBOTexture);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // MIPMAP - TRUE
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 512, 512, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0); // RGBA 8BIT
+	// 주의 할 점은 해상도를 맞춰주는게 좋다.
+
+	GLuint depthBuffer;
+	glGenRenderbuffers(1, &depthBuffer); // Depth 버퍼는 Render 버퍼 형태로 만듦
+	glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 512, 512);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	glGenFramebuffers(1, &m_A_FBO); // 공백 FBO 생성
+	glBindFramebuffer(GL_FRAMEBUFFER, m_A_FBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_A_FBOTexture, 0);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+	// DEPTH_ATTATCHMENT는 번호가 따로 들어가지 않는다
+
+	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (status != GL_FRAMEBUFFER_COMPLETE)
+	{
+		std::cout << "Gen FBO failed" << std::endl;
+	}
+}
+
 void Renderer::DrawTest()
 {
 	//Program select
@@ -757,4 +806,57 @@ void Renderer::DrawTextureSandbox()
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	glDisableVertexAttribArray(attribPosition);
+}
+
+void Renderer::DrawTexture(float x, float y, float sizeX, float sizeY, GLuint texID)
+{
+	//Program select
+	GLuint shader = m_TextureShader;
+	glUseProgram(shader);
+	GLuint stride = sizeof(float) * 3;
+
+	// Add Uniform
+	int ulScreenResol = glGetUniformLocation(shader, "u_ScreenResol");
+	glUniform2f(ulScreenResol, (float)m_WindowSizeX, (float)m_WindowSizeY);
+	
+	int ulPosition = glGetUniformLocation(shader, "u_Position");
+	glUniform2f(ulPosition, x, y);
+
+	int ulSize = glGetUniformLocation(shader, "u_Size");
+	glUniform2f(ulSize, sizeX, sizeY);
+
+	// Texture Slot
+	int ulSampler = glGetUniformLocation(shader, "u_Texture");
+	glUniform1i(ulSampler, 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texID);
+
+	int attribPosition = glGetAttribLocation(shader, "a_Position");
+	glEnableVertexAttribArray(attribPosition);
+	glBindBuffer(GL_ARRAY_BUFFER, m_TextureVBO);
+	glVertexAttribPointer(attribPosition,
+		3, GL_FLOAT, GL_FALSE, stride, 0);
+
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void Renderer::DrawTotal()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// Renderer Test
+	glBindFramebuffer(GL_FRAMEBUFFER, m_A_FBO);
+	glViewport(0, 0, m_WindowSizeX, m_WindowSizeX);
+	//DrawSolidRect(0, 0, 0, 4, 1, 0, 1, 1);
+	//DrawTest();
+	//DrawParticle();
+	//DrawParticleCloud();
+	//DrawFSSandbox();
+	//DrawGridMesh();
+	DrawTextureSandbox();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);// 메인 프레임 버퍼로 돌아옴
+	glViewport(0, 0, m_WindowSizeX, m_WindowSizeX);
+
+	DrawTexture(m_WindowSizeX / 2, m_WindowSizeY / 2, m_WindowSizeX / 2, m_WindowSizeY / 2, m_A_FBOTexture);
+
 }

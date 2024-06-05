@@ -78,21 +78,25 @@ void SinGraph()
 
 void numCircles()
 {
-   vec2 centers[3] = vec2[](vec2(0.3, 0.3), vec2(0.7, 0.5), vec2(0.5, 0.7)); // 원의 중심 위치 설정
-   float circleCount = 10.0;
-    float maxEffect = 0.0;
-   float timeOffsets[3] = float[](0.0, 1.0, 2.0);
+	vec2 centers[3] = vec2[](vec2(0.3, 0.3), vec2(0.7, 0.5), vec2(0.5, 0.7)); 
+	float circleCount = 10.0;
+	float maxEffect = 0.0; 
+	float timeOffsets[3] = float[](0.0, 1.0, 2.0); 
 
-    for (int i = 0; i < 3; i++)
-    {
-        float adjustedTime = u_Time + timeOffsets[i];
-        float dist = distance(v_Color.rg, centers[i]);
-        float inputF = circleCount * c_PI * 4.0 * dist - adjustedTime * 2.0;
-        float sinValue = pow(sin(inputF), 16.0);
-        maxEffect = max(maxEffect, sinValue);
-    }
+	for (int i = 0; i < 3; i++)
+	{
+		float adjustedTime = u_Time + timeOffsets[i];
+		float dist = distance(v_Color.rg, centers[i]);
+		float inputF = circleCount * c_PI * dist - adjustedTime * 2.0;
+		float sinValue = pow(sin(inputF), 256.0); 
 
-    FragColor = vec4(maxEffect); 
+
+		if (u_Time >= timeOffsets[i] && u_Time <= timeOffsets[i] + 3.0) {
+			float fadeOutFactor = 1.0 - (u_Time - timeOffsets[i]) / 3.0;
+			maxEffect = max(maxEffect, sinValue * fadeOutFactor);
+		}
+	}
+	FragColor = vec4(maxEffect, maxEffect, maxEffect, 1.0);
 }
 
 void main()

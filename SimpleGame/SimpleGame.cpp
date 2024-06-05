@@ -16,6 +16,8 @@ but WITHOUT ANY WARRANTY.
 #include "Renderer.h"
 
 Renderer *g_Renderer = NULL;
+int g_ScreenSizeX = 500;
+int g_ScreenSizeY = 500;
 
 void RenderScene(void)
 {
@@ -32,19 +34,8 @@ void RenderScene(void)
 }
 
 void RenderSceneTimer(int value)
-{
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.0f, 0.3f, 0.3f, 1.0f); // 배경색
-
-	// Renderer Test
-	//g_Renderer->DrawSolidRect(0, 0, 0, 4, 1, 0, 1, 1);
-	//g_Renderer->DrawTest();
-	//g_Renderer->DrawParticle();
-	//g_Renderer->DrawParticleCloud();
-	g_Renderer->DrawFSSandbox();
-	//g_Renderer->DrawGridMesh();
-	//g_Renderer->DrawTextureSandbox();
-
+{	
+	g_Renderer->DrawTotal();
 	glutSwapBuffers();
 	glutTimerFunc(16, RenderSceneTimer, 1); // 16ms 이후에 반복 호출
 }
@@ -74,8 +65,8 @@ int main(int argc, char **argv)
 	// Initialize GL things
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
-	glutInitWindowPosition(0, 0);
-	glutInitWindowSize(500, 500);
+	glutInitWindowPosition(0, 0); // 윈도우가 뜰 기본 위치
+	glutInitWindowSize(g_ScreenSizeX, g_ScreenSizeY);
 	glutCreateWindow("Game Software Engineering KPU");
 
 	glewInit();
@@ -89,7 +80,7 @@ int main(int argc, char **argv)
 	}
 
 	// Initialize Renderer
-	g_Renderer = new Renderer(500, 500);
+	g_Renderer = new Renderer(g_ScreenSizeX, g_ScreenSizeY);
 	if (!g_Renderer->IsInitialized())
 	{
 		std::cout << "Renderer could not be initialized.. \n";
@@ -100,6 +91,9 @@ int main(int argc, char **argv)
 	glutKeyboardFunc(KeyInput);
 	glutMouseFunc(MouseInput);
 	glutSpecialFunc(SpecialKeyInput);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // 클리어
+	glClearDepth(1.f);
 
 	glutTimerFunc(16, RenderSceneTimer, 1); // 메인 루프가 시작되기 전에 최초호출
 	glutMainLoop();
